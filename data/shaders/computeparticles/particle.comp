@@ -56,7 +56,11 @@ void main()
     // Read position and velocity
     vec2 thisPos = particlesA[index].pos.xy;
     vec2 thisVel = particlesA[index].vel.xy;
+
     vec2 center = vec2(0);
+    vec2 separate = vec2(0);
+    vec2 cohesion = vec2(0);
+    uint neighborCount = 0;
 
     for (int i = 0; i < ubo.particleCount; i++) {
       vec2 thatPos = particlesA[i].pos.xy;
@@ -64,33 +68,33 @@ void main()
 
       // Rule 1: Cohesion: boids fly towards the center of mass of neighboring
       // boids
-      if (dist < rule1Distance) { 
+      if (dist < ubo.rule1Distance) { 
         center += thatPos; 
         neighborCount++;
       }
 
       // Rule 2: Separation: boids try to keep a small distance away from
       // each other 
-      if (dist < rule2Distance) { 
+      if (dist < ubo.rule2Distance) { 
         separate -= thatPos - thisPos; 
       }
 
       // Rule 3: Alignment: boids try to match the velocities of neighboring
       // boids
-      if (dist < rule3Distance) { 
+      if (dist < ubo.rule3Distance) { 
         cohesion += particlesA[i].vel.xy;
       }
     }
 
-    vec3 toCenter(0);
+    vec2 toCenter = vec2(0);
     if (neighborCount > 0) { 
       center /= neighborCount; 
       toCenter = (center - thisPos); 
     } 
 
-    thisVel = toCenter * rule1Scale 
-            + separate * rule2Scale 
-            + cohesion * rule3Scale;
+    thisVel += toCenter * ubo.rule1Scale
+             + separate * ubo.rule2Scale
+             + cohesion * ubo.rule3Scale;
 
 
     // clamp velocity for a more pleasing simulation.
@@ -105,7 +109,7 @@ void main()
     if (thisPos.y < -1.0) thisPos.y =  1.0;
     if (thisPos.y >  1.0) thisPos.y = -1.0;
 
-    particlesB[index].pos.xy = thisPothisPos
+    particlesB[index].pos.xy = thisPos;
 
     // Write back
     particlesB[index].vel.xy = thisVel;
