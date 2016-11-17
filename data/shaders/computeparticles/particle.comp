@@ -89,7 +89,9 @@ void main()
     vec2 toCenter = vec2(0);
     if (neighborCount > 0) { 
       center /= neighborCount; 
-      toCenter = (center - thisPos); 
+      toCenter = (center - thisPos);
+	  // cohesion /= neighborCount;
+	  cohesion -= thisVel; 
     } 
 
     thisVel += toCenter * ubo.rule1Scale
